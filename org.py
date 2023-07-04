@@ -1,7 +1,7 @@
 from github import Github
 
 # Replace 'YOUR_PERSONAL_ACCESS_TOKEN' with your GitHub personal access token
-access_token = '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'
+access_token = 'GITHUB_PAT'
 
 # Create a GitHub API object using the access token
 g = Github(access_token)
