@@ -51,7 +51,7 @@ for repo in c.repos:
         c.return_to_root(repo)
 
         # Write the data to the sheet
-        row = sheet.max_row + 1
+        row = len(sheet['A']) + 1
         sheet.cell(row=row, column=1, value=repo)
         sheet.cell(row=row, column=2, value=package_manager)
         sheet.cell(row=row, column=3, value=dependency_management)
