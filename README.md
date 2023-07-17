@@ -2,13 +2,8 @@
 A project to analyse GitHub repositories.
 
 ## Setup Instructions
-- Clone the repository.
-- Ensure you have ```Python3``` installed on your machine.
-- Install ```PyGithub``` on your machine, run ```pip3 install PyGithub```.
-- Update the ```access_token``` value in ```repo.py``` and ```org.py``` to your GitHub PAT.
-- Update the ```organization_name``` value in ```repo.py``` and ```org.py``` to your GitHub organisation's name.
-- Update the ```repo_name``` value in ```repo.py``` to your GitHub repo's name.
+- There are two ways to use this repository. You can use the GitHub API scripts, however you'll need to generate a PAT with write permissions. Or alternatively, you can use the CLI scripts which will just use your own CLI to run the scripts.
 
-## Example Usage
-- Run: ```python3 repo.py``` to analyse a specific repository.
-- Run: ```python3 org.py``` to analyse a all repositories on your GitHub organisation.
+- Clone the repository.
+- Select either API or CLI.
+- Read the ```README.md``` file in the ```api``` or ```cli``` directory for further instructions.
