@@ -3,6 +3,9 @@ import json
 import glob
 import subprocess
 import datetime
+import openpyxl
+from openpyxl import Workbook
+from openpyxl.styles import Font
 import pytz
 
 class Config:
@@ -29,6 +32,27 @@ class Config:
     #
     # Functions
     #
+    
+    def load_or_create_workbook(file_path):
+        try:
+            workbook = openpyxl.load_workbook(file_path)
+        except FileNotFoundError:
+            workbook = Workbook()
+        return workbook
+
+    def select_or_create_sheet(workbook, sheet_name):
+        if sheet_name in workbook.sheetnames:
+            sheet = workbook[sheet_name]
+        else:
+            sheet = workbook.create_sheet(sheet_name)
+        return sheet
+
+    def write_headers(sheet, headers):
+        if sheet.max_row == 1:
+            for col_num, header in enumerate(headers, start=1):
+                cell = sheet.cell(row=1, column=col_num)
+                cell.value = header
+                cell.font = Font(bold=True)
 
     # Clone the repository and change directory
     def clone_repo(repo_name):
@@ -42,13 +66,8 @@ class Config:
 
     # Change directory back to root and delete the cloned repository
     def return_to_root(repo_name):
-        try:
-            os.chdir("..")
-            os.system(f"rm -rf {repo_name}")
-        except:
-            print(f'Failed to return root and delete {repo_name}.')
-            print('Exiting program.')
-            exit()
+        os.chdir("..")
+        os.system(f"rm -rf {repo_name}")
 
     # Check the repository for 'package-lock.json' or 'yarn.lock'
     def get_package_manager(repo_name):
@@ -92,6 +111,70 @@ class Config:
             print(f'Failed to check for Semantic Release for {repo_name}.')
             print('Exiting program.')
             exit()
+            
+    # Check the repository for Integration Suite (GHA)
+    def get_gha_integration(repo_name):
+        try:
+            ymlFiles = glob.glob('.github/workflows/*.yml')
+            yamlFiles = glob.glob('.github/workflows/*.yaml')
+            allFiles = ymlFiles + yamlFiles
+            keywords = ["test", "build", "integration"]
+            for file in allFiles:
+                with open(file, 'r') as f:
+                    if any(keyword in line for line in f for keyword in keywords):
+                        return "Yes"
+            return "No"
+        except:
+            print(f'Failed to check for Integration Suite (GHA) for {repo_name}.')
+            print('Exiting program.')
+            exit()
+
+    # Check the repository for Concurrency Rule (GHA)
+    def get_gha_concurrency(repo_name):
+        try:
+            ymlFiles = glob.glob('.github/workflows/*.yml')
+            yamlFiles = glob.glob('.github/workflows/*.yaml')
+            allFiles = ymlFiles + yamlFiles
+            for file in allFiles:
+                with open(file, 'r') as f:
+                    if 'concurrency' in f.read():
+                        return "Yes"
+            return "No"
+        except:
+            print(f'Failed to check for Concurrency Rule (GHA) for {repo_name}.')
+            print('Exiting program.')
+            exit()
+
+    # Check the repository for Mend (GHA)
+    def get_mend_gha(repo_name):
+        try:
+            ymlFiles = glob.glob('.github/workflows/*.yml')
+            yamlFiles = glob.glob('.github/workflows/*.yaml')
+            allFiles = ymlFiles + yamlFiles
+            for file in allFiles:
+                with open(file, 'r') as f:
+                    if 'mend' in f.read():
+                        return "Yes"
+            return "No"
+        except:
+            print(f'Failed to check for Mend (GHA) for {repo_name}.')
+            print('Exiting program.')
+            exit()
+
+    # Check the repository for Dependency Management
+    def get_dependency_management(repo_name):
+        try:
+            process = subprocess.run(["gh", "pr", "list"], capture_output=True, text=True)
+            output = process.stdout
+            if "renovate" in output :
+                return "Renovate"    
+            elif "dependabot" in output:
+                return "Dependabot"
+            return "No"
+        except:
+            print(f'Failed to check for Dependency Management for {repo_name}.')
+            print('Exiting program.')
+            exit()
 
     # Check the repository for GitHub Actions files
     def get_gha(repo_name):
@@ -116,71 +199,14 @@ class Config:
             print('Exiting program.')
             exit()
             
-    # Check the repository for Integration Suite (GHA)
-    def get_gha_integration(repo_name):
-        try:
-            ymlFiles = glob.glob('.github/workflows/*.yml')
-            yamlFiles = glob.glob('.github/workflows/*.yaml')
-            allFiles = ymlFiles + yamlFiles
-            keywords = ["test", "build", "integration"]
-
-            for file in allFiles:
-                with open(file, 'r') as f:
-                    if any(keyword in line for line in f for keyword in keywords):
-                        return "Yes"
-            return "No"
-        except:
-            print(f'Failed to check for Integration Suite (GHA) for {repo_name}.')
-            print('Exiting program.')
-            exit()
-
-    # Check the repository for Concurrency Rule (GHA)
-    def get_gha_concurrency(repo_name):
-        try:
-            ymlFiles = glob.glob('.github/workflows/*.yml')
-            yamlFiles = glob.glob('.github/workflows/*.yaml')
-            allFiles = ymlFiles + yamlFiles
-
-            for file in allFiles:
-                with open(file, 'r') as f:
-                    if 'concurrency' in f.read():
-                        return "Yes"
-            return "No"
-        except:
-            print(f'Failed to check for Concurrency Rule (GHA) for {repo_name}.')
-            print('Exiting program.')
-            exit()
-
-    # Check the repository for Mend (GHA)
-    def get_mend_gha(repo_name):
-        try:
-            ymlFiles = glob.glob('.github/workflows/*.yml')
-            yamlFiles = glob.glob('.github/workflows/*.yaml')
-            allFiles = ymlFiles + yamlFiles
-
-            for file in allFiles:
-                with open(file, 'r') as f:
-                    if 'mend' in f.read():
-                        return "Yes"
-            return "No"
-        except:
-            print(f'Failed to check for Mend (GHA) for {repo_name}.')
-            print('Exiting program.')
-            exit()
-
-    # Check the repository for Dependency Management
-    def get_dependency_management(repo_name):
-        try:
-            process = subprocess.run(["gh", "pr", "list"], capture_output=True, text=True)
-            output = process.stdout
-            if "renovate" and "dependabot" in output:
-                return "Renovate and Dependabot"
-            elif "renovate" in output :
-                return "Renovate"    
-            elif "dependabot" in output:
-                return "Dependabot"
-            return "No"
-        except:
-            print(f'Failed to check for Dependency Management for {repo_name}.')
-            print('Exiting program.')
-            exit()
+    def console_output(repo, package_manager, semantic_release, gha, dependency_management, integration_suite, concurrency_rule, mend_gha):
+        print(f'{Config.CYAN}--------------------------------{Config.RESET}')
+        print(f'Repository: {Config.YELLOW}{repo}{Config.RESET}')
+        print(f'Package Manager: {Config.RED if package_manager == "No" else Config.GREEN}{package_manager}{Config.RESET}')
+        print(f'Semantic Release: {Config.GREEN if semantic_release == "Yes" else Config.RED}{semantic_release}{Config.RESET}')
+        print(f'GitHub Actions: {Config.GREEN if gha == "Yes" else Config.RED}{gha}{Config.RESET}')
+        print(f'Dependency Management: {Config.RED if dependency_management == "No" else Config.GREEN}{dependency_management}{Config.RESET}')
+        print(f'Integration Suite (GHA): {Config.GREEN if integration_suite == "Yes" else Config.RED}{integration_suite}{Config.RESET}')
+        print(f'Concurrency Rule (GHA): {Config.GREEN if concurrency_rule == "Yes" else Config.RED}{concurrency_rule}{Config.RESET}')
+        print(f'Mend (GHA): {Config.GREEN if mend_gha == "Yes" else Config.RED}{mend_gha}{Config.RESET}')
+        print(f'{Config.CYAN}--------------------------------{Config.RESET}')
