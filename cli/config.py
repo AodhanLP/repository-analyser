@@ -33,12 +33,12 @@ class Config:
             packageLockJsonExists = os.path.isfile('package-lock.json')
             yarnLockExists = os.path.isfile('yarn.lock')
 
-            if packageLockJsonExists:
+            if packageLockJsonExists and yarnLockExists:
+                return 'Yes (NPM and Yarn)' 
+            elif packageLockJsonExists:
                 return 'Yes (NPM)'
             elif yarnLockExists:
                 return 'Yes (Yarn)'
-            elif packageLockJsonExists and yarnLockExists:
-                return 'Yes (NPM and Yarn)'
             else:
                 return 'No'
         except:

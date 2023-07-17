@@ -9,10 +9,10 @@ for repo in c.repos:
         # Check for a Package Manager
         packageManager = c.get_package_manager(repo)
 
-        # Clone for Semantic Release
+        # Check for Semantic Release
         semanticRelease = c.get_semantic_release(repo)
 
-        # Clone for GitHub Actions
+        # Check for GitHub Actions
         githubActions = c.get_gha(repo)
         
         # Return to the root directory and delete the repo
