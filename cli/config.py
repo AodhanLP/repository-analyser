@@ -42,8 +42,13 @@ class Config:
 
     # Change directory back to root and delete the cloned repository
     def return_to_root(repo_name):
-        os.chdir("..")
-        os.system(f"rm -rf {repo_name}")
+        try:
+            os.chdir("..")
+            os.system(f"rm -rf {repo_name}")
+        except:
+            print(f'Failed to return root and delete {repo_name}.')
+            print('Exiting program.')
+            exit()
 
     # Check the repository for 'package-lock.json' or 'yarn.lock'
     def get_package_manager(repo_name):
@@ -87,70 +92,6 @@ class Config:
             print(f'Failed to check for Semantic Release for {repo_name}.')
             print('Exiting program.')
             exit()
-            
-    # Check the repository for Integration Suite (GHA)
-    def get_gha_integration(repo_name):
-        try:
-            ymlFiles = glob.glob('.github/workflows/*.yml')
-            yamlFiles = glob.glob('.github/workflows/*.yaml')
-            allFiles = ymlFiles + yamlFiles
-            keywords = ["test", "build", "integration"]
-            for file in allFiles:
-                with open(file, 'r') as f:
-                    if any(keyword in line for line in f for keyword in keywords):
-                        return "Yes"
-            return "No"
-        except:
-            print(f'Failed to check for Integration Suite (GHA) for {repo_name}.')
-            print('Exiting program.')
-            exit()
-
-    # Check the repository for Concurrency Rule (GHA)
-    def get_gha_concurrency(repo_name):
-        try:
-            ymlFiles = glob.glob('.github/workflows/*.yml')
-            yamlFiles = glob.glob('.github/workflows/*.yaml')
-            allFiles = ymlFiles + yamlFiles
-            for file in allFiles:
-                with open(file, 'r') as f:
-                    if 'concurrency' in f.read():
-                        return "Yes"
-            return "No"
-        except:
-            print(f'Failed to check for Concurrency Rule (GHA) for {repo_name}.')
-            print('Exiting program.')
-            exit()
-
-    # Check the repository for Mend (GHA)
-    def get_mend_gha(repo_name):
-        try:
-            ymlFiles = glob.glob('.github/workflows/*.yml')
-            yamlFiles = glob.glob('.github/workflows/*.yaml')
-            allFiles = ymlFiles + yamlFiles
-            for file in allFiles:
-                with open(file, 'r') as f:
-                    if 'mend' in f.read():
-                        return "Yes"
-            return "No"
-        except:
-            print(f'Failed to check for Mend (GHA) for {repo_name}.')
-            print('Exiting program.')
-            exit()
-
-    # Check the repository for Dependency Management
-    def get_dependency_management(repo_name):
-        try:
-            process = subprocess.run(["gh", "pr", "list"], capture_output=True, text=True)
-            output = process.stdout
-            if "renovate" in output :
-                return "Renovate"    
-            elif "dependabot" in output:
-                return "Dependabot"
-            return "No"
-        except:
-            print(f'Failed to check for Dependency Management for {repo_name}.')
-            print('Exiting program.')
-            exit()
 
     # Check the repository for GitHub Actions files
     def get_gha(repo_name):
@@ -172,5 +113,74 @@ class Config:
 
         except:
             print(f'Failed to check for GitHub Actions files for {repo_name}.')
+            print('Exiting program.')
+            exit()
+            
+    # Check the repository for Integration Suite (GHA)
+    def get_gha_integration(repo_name):
+        try:
+            ymlFiles = glob.glob('.github/workflows/*.yml')
+            yamlFiles = glob.glob('.github/workflows/*.yaml')
+            allFiles = ymlFiles + yamlFiles
+            keywords = ["test", "build", "integration"]
+
+            for file in allFiles:
+                with open(file, 'r') as f:
+                    if any(keyword in line for line in f for keyword in keywords):
+                        return "Yes"
+            return "No"
+        except:
+            print(f'Failed to check for Integration Suite (GHA) for {repo_name}.')
+            print('Exiting program.')
+            exit()
+
+    # Check the repository for Concurrency Rule (GHA)
+    def get_gha_concurrency(repo_name):
+        try:
+            ymlFiles = glob.glob('.github/workflows/*.yml')
+            yamlFiles = glob.glob('.github/workflows/*.yaml')
+            allFiles = ymlFiles + yamlFiles
+
+            for file in allFiles:
+                with open(file, 'r') as f:
+                    if 'concurrency' in f.read():
+                        return "Yes"
+            return "No"
+        except:
+            print(f'Failed to check for Concurrency Rule (GHA) for {repo_name}.')
+            print('Exiting program.')
+            exit()
+
+    # Check the repository for Mend (GHA)
+    def get_mend_gha(repo_name):
+        try:
+            ymlFiles = glob.glob('.github/workflows/*.yml')
+            yamlFiles = glob.glob('.github/workflows/*.yaml')
+            allFiles = ymlFiles + yamlFiles
+
+            for file in allFiles:
+                with open(file, 'r') as f:
+                    if 'mend' in f.read():
+                        return "Yes"
+            return "No"
+        except:
+            print(f'Failed to check for Mend (GHA) for {repo_name}.')
+            print('Exiting program.')
+            exit()
+
+    # Check the repository for Dependency Management
+    def get_dependency_management(repo_name):
+        try:
+            process = subprocess.run(["gh", "pr", "list"], capture_output=True, text=True)
+            output = process.stdout
+            if "renovate" and "dependabot" in output:
+                return "Renovate and Dependabot"
+            elif "renovate" in output :
+                return "Renovate"    
+            elif "dependabot" in output:
+                return "Dependabot"
+            return "No"
+        except:
+            print(f'Failed to check for Dependency Management for {repo_name}.')
             print('Exiting program.')
             exit()
