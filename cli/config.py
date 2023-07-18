@@ -25,6 +25,35 @@ class Config:
     #
 
     repos = [
+        "adapt-ami",
+        "adapt-builder",
+        "adapt-builder-importer",
+        "adapt-contrib-aboutUs",
+        "adapt-contrib-articleBlockSlider",
+        "adapt-contrib-assessmentSingleSubmit",
+        "adapt-contrib-assistedLearning",
+        "adapt-contrib-avatar",
+        "adapt-contrib-branching",
+        "adapt-contrib-brightcovePlayer",
+        "adapt-contrib-carbonMenu",
+        "adapt-contrib-certificate",
+        "adapt-contrib-chatbot",
+        "adapt-contrib-homeRedirect",
+        "adapt-contrib-cinnamonMenu",
+        "adapt-contrib-confidenceBasedMarking",
+        "adapt-contrib-confirmExit",
+        "adapt-contrib-coreMenu",
+        "adapt-contrib-courseScore",
+        "adapt-contrib-dyslexia-helper",
+        "adapt-contrib-exhibit",
+        "adapt-contrib-fiftyShades",
+        "adapt-contrib-fillInTheBlanks",
+        "adapt-contrib-flipcard",
+        "adapt-contrib-fontAwesomeIcons",
+        "adapt-contrib-fullScreenMenu",
+        "adapt-contrib-googleAnalytics",
+        "adapt-contrib-healthGauge",
+        "adapt-contrib-hiddenHotspots",
         "lp-home",
         "lp-home-web"
     ]
@@ -118,7 +147,7 @@ class Config:
             ymlFiles = glob.glob('.github/workflows/*.yml')
             yamlFiles = glob.glob('.github/workflows/*.yaml')
             allFiles = ymlFiles + yamlFiles
-            keywords = ["test", "build", "integration"]
+            keywords = ["integration suite", "integration"]
             for file in allFiles:
                 with open(file, 'r') as f:
                     if any(keyword in line for line in f for keyword in keywords):
@@ -166,10 +195,12 @@ class Config:
         try:
             process = subprocess.run(["gh", "pr", "list"], capture_output=True, text=True)
             output = process.stdout
-            if "renovate" in output :
-                return "Renovate"    
+            if "renovate" and "dependabot" in output :
+                return "Renovate and Dependabot"    
             elif "dependabot" in output:
                 return "Dependabot"
+            elif "renovate" in output:
+                return "Renovate"
             return "No"
         except:
             print(f'Failed to check for Dependency Management for {repo_name}.')
@@ -198,6 +229,30 @@ class Config:
             print(f'Failed to check for GitHub Actions files for {repo_name}.')
             print('Exiting program.')
             exit()
+    
+    def update_or_add_repo(sheet, repo, repo_exists, package_manager, dependency_management, semantic_release, gha, integration_suite, concurrency_rule, mend_gha):
+        if repo_exists:
+            for row in range(2, sheet.max_row + 1):
+                if sheet.cell(row=row, column=1).value == repo:
+                    sheet.cell(row=row, column=2, value=package_manager)
+                    sheet.cell(row=row, column=3, value=dependency_management)
+                    sheet.cell(row=row, column=4, value=semantic_release)
+                    sheet.cell(row=row, column=5, value=gha)
+                    sheet.cell(row=row, column=6, value=integration_suite)
+                    sheet.cell(row=row, column=7, value=concurrency_rule)
+                    sheet.cell(row=row, column=8, value=mend_gha)
+                    break
+        else:
+            next_row = sheet.max_row + 1
+            sheet.cell(row=next_row, column=1, value=repo)
+            sheet.cell(row=next_row, column=2, value=package_manager)
+            sheet.cell(row=next_row, column=3, value=dependency_management)
+            sheet.cell(row=next_row, column=4, value=semantic_release)
+            sheet.cell(row=next_row, column=5, value=gha)
+            sheet.cell(row=next_row, column=6, value=integration_suite)
+            sheet.cell(row=next_row, column=7, value=concurrency_rule)
+            sheet.cell(row=next_row, column=8, value=mend_gha)
+
             
     def console_output(repo, package_manager, semantic_release, gha, dependency_management, integration_suite, concurrency_rule, mend_gha):
         print(f'{Config.CYAN}--------------------------------{Config.RESET}')

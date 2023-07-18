@@ -48,34 +48,15 @@ for repo in c.repos:
                 break
 
         # Update the data if the repository already exists, or add a new row otherwise
-        if repo_exists:
-            for row in range(2, sheet.max_row + 1):
-                if sheet.cell(row=row, column=1).value == repo:
-                    sheet.cell(row=row, column=2, value=package_manager)
-                    sheet.cell(row=row, column=3, value=dependency_management)
-                    sheet.cell(row=row, column=4, value=semantic_release)
-                    sheet.cell(row=row, column=5, value=gha)
-                    sheet.cell(row=row, column=6, value=integration_suite)
-                    sheet.cell(row=row, column=7, value=concurrency_rule)
-                    sheet.cell(row=row, column=8, value=mend_gha)
-                    break
-        else:
-            next_row = sheet.max_row + 1
-            sheet.cell(row=next_row, column=1, value=repo)
-            sheet.cell(row=next_row, column=2, value=package_manager)
-            sheet.cell(row=next_row, column=3, value=dependency_management)
-            sheet.cell(row=next_row, column=4, value=semantic_release)
-            sheet.cell(row=next_row, column=5, value=gha)
-            sheet.cell(row=next_row, column=6, value=integration_suite)
-            sheet.cell(row=next_row, column=7, value=concurrency_rule)
-            sheet.cell(row=next_row, column=8, value=mend_gha)
+        c.update_or_add_repo(sheet, repo, repo_exists, package_manager, dependency_management, semantic_release, gha, integration_suite, concurrency_rule, mend_gha)
+
 
         # Print the repository information
         c.console_output(repo, package_manager, semantic_release, gha, dependency_management, integration_suite,
                          concurrency_rule, mend_gha)
 
     except:
-        print(f'Failed to analyze {repo}.')
+        print(f'{c.RED}Failed to analyze {repo}.{c.RESET}')
         print('Exiting program.')
         exit()
 
