@@ -50,6 +50,8 @@ for repo in c.repos:
         # Update the data if the repository already exists, or add a new row otherwise
         c.update_or_add_repo(sheet, repo, repo_exists, package_manager, dependency_management, semantic_release, gha, integration_suite, concurrency_rule, mend_gha)
 
+        # Save the modified workbook
+        workbook.save('LP Github repos.xlsx')
 
         # Print the repository information
         c.console_output(repo, package_manager, semantic_release, gha, dependency_management, integration_suite,
@@ -59,6 +61,3 @@ for repo in c.repos:
         print(f'{c.RED}Failed to analyze {repo}.{c.RESET}')
         print('Exiting program.')
         exit()
-
-# Save the modified workbook
-workbook.save('LP Github repos.xlsx')
