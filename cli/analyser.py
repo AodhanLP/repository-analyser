@@ -1,6 +1,3 @@
-import openpyxl
-from openpyxl import Workbook
-from openpyxl.styles import Font
 from config import Config as c
 
 # Check if the Excel file exists
